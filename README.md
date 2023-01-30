@@ -33,7 +33,7 @@ Valores que estão contidos dentro da propriedades `gridInformation`.
 
 <br>
 
-Valores que estão contidos dentro das propriedades `startEmptyGridItems` e `endEmptyGridItems`.
+Valores que estão contidos dentro das propriedades `gridStartEmptySlots` e `gridEndEmptySlots`.
 
 <br>
 
