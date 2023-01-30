@@ -9,75 +9,80 @@ const getDate = (month, day, year) => {
     }
 }
 
-const getDaysAmount = (month, year) => {
-    const { isSameMonth: has31Days } = getDate(month, 31, year);
-    const { isSameMonth: has30Days } = getDate(month, 30, year);
-    const { isSameMonth: has29Days } = getDate(month, 29, year);
-    return has31Days ? 31 : has30Days ? 30 : has29Days ? 29 : 28;
-}
+const getDayOfTheWeek = (month, day, year) => days[getDate(month, day, year).date.getDay()];
 
-const getCalendarInfo = (year) => (
-    months.map((_, index) => {
-        // Month
+const getDaysInMonth = (month, year) => new Date(year, month, 0).getDate();
+
+const getCalendarInfo = (year) => {
+    if (!(/\d+/g.test(year)) || typeof year !== "number")
+        throw new SyntaxError("Parameter `year` must be a number.");
+
+    if (!year || year > 2500)
+        throw new RangeError("The number must be between 1 and 2500.");
+
+    return months.map((_, index) => {
+        // Iteration month
         const iterationMonth = months[index];
         const iterationMonthNumber = index + 1;
+
+        // Previous month
         const iterationPreviousMonth = months[index-1] ? months[index-1] : 'december';
+        const iterationPreviousMonthNumber = months.findIndex((v) => v === iterationPreviousMonth) + 1;
+        const previousMonthDaysAmount = getDaysInMonth(iterationPreviousMonthNumber, iterationMonthNumber === 1 ? year - 1 : year);
+
+        // Next month
         const iterationNextMonth = months[iterationMonthNumber] ? months[iterationMonthNumber] : 'january';
         const iterationNextMonthNumber = months.findIndex((v) => v === iterationNextMonth) + 1;
-        const firstDayName = days[getDate(iterationMonthNumber, 1, year).date.getDay()]; 
-        const daysAmount = getDaysAmount(iterationMonthNumber, year);
-        const lastDayName = days[getDate(iterationMonthNumber, daysAmount, year).date.getDay()]; 
+
+        // Days
+        const firstDayName = getDayOfTheWeek(iterationMonthNumber, 1, year);
+        const iterationMonthDaysAmount = getDaysInMonth(iterationMonthNumber, year);
+        const lastDayName = getDayOfTheWeek(iterationMonthNumber, iterationMonthDaysAmount, year);
 
         // Grid
         const gridStartsAt = getDate(iterationMonthNumber, 1, year).date.getDay() + 1;
-        const emptyGridItems = (7 * 6) - daysAmount;
-
-        const fillStartValues = [];
-        const previousMonthNumber = months.findIndex((v) => v === iterationPreviousMonth) + 1;
-        const previousMonthDaysAmount = getDaysAmount(previousMonthNumber, iterationMonthNumber === 1 ? year - 1 : year);
+        const gridEmptySlots = (7 * 6) - iterationMonthDaysAmount;
+        const gridStartValues = [];
+        const gridEndValues = [];
 
         for (let number = 0; number < gridStartsAt - 1; number++) {
-            fillStartValues.push(previousMonthDaysAmount-number);
+            gridStartValues.push(previousMonthDaysAmount-number);
         }
         
-        const startEmptyGridItems = {
+        const gridStartEmptySlots = {
             amount: gridStartsAt - 1,
-            fillValues: fillStartValues.map((day, i) => {
+            fillValues: gridStartValues.map((day) => {
                 const fillYear = iterationMonthNumber === 1 ? year - 1 : year;
-                return getDate(previousMonthNumber, day, fillYear).date.toISOString()
+                return getDate(iterationPreviousMonthNumber, day, fillYear).date.toISOString()
             })
         }
         
-        const fillEndValues = [];
-        for(let number = 0; number < (emptyGridItems - startEmptyGridItems.amount); number++) {
-            fillEndValues.push(number + 1);
+        for(let number = 0; number < (gridEmptySlots - gridStartEmptySlots.amount); number++) {
+            gridEndValues.push(number + 1);
         }
 
-        const endEmptyGridItems = {
-            amount: emptyGridItems - startEmptyGridItems.amount,
-            fillValues: fillEndValues.map((day, i) => {
+        const gridEndEmptySlots = {
+            amount: gridEmptySlots - gridStartEmptySlots.amount,
+            fillValues: gridEndValues.map((day, i) => {
                 const fillYear = iterationMonthNumber === 12 ? year + 1 : year;
                 return getDate(iterationNextMonthNumber, day, fillYear).date.toISOString();
             })
         }
 
-        const gridInfo = {
+        return {
             year,
             month: iterationMonth,
             firstDayName,
             lastDayName,
-            daysAmount,
+            daysAmount: iterationMonthDaysAmount,
             gridInformation: {
                 gridStartsAt,
-                emptyGridItems,
-                startEmptyGridItems,
-                endEmptyGridItems,
+                gridEmptySlots,
+                gridEndEmptySlots,
+                gridStartEmptySlots,
             }
         }
-
-        return gridInfo;
     })
-)
+}
 
-const monthDaysInfo = getCalendarInfo(2023)
-console.log(monthDaysInfo);
+console.log(getCalendarInfo(2023));

@@ -27,9 +27,9 @@ Valores que estão contidos dentro da propriedades `gridInformation`.
 | Grid Info  | Tipo   |
 |--------|--------|
 | gridStartsAt   | number |
-| emptyGridItems  | number |
-| startEmptyGridItems  | object |
-| endEmptyGridItems  | object |
+| gridEmptySlots  | number |
+| gridStartEmptySlots  | object |
+| gridEndEmptySlots  | object |
 
 <br>
 
@@ -38,7 +38,7 @@ Valores que estão contidos dentro das propriedades `startEmptyGridItems` e `end
 <br>
 
 
-| Empty Grid Items  | Tipo   |
+| Grid Empty Items  | Tipo   |
 |--------|--------|
 | amount   | number |
 | fillValues  | string[] |
